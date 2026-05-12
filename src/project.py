@@ -32,7 +32,6 @@ def generate_monochromatic_palette(num_states):
     return np.array(palette)
 
 def sprout_cells(grid, cx, cy, radius, num_states):
-    
     for x in range(-radius, radius + 1):
         for y in range(-radius, radius + 1):
             if x*x + y*y <= radius*radius: 
@@ -56,6 +55,7 @@ def count_neighbors(grid, target_state, neighborhood):
     
 
 class Ecosystem:
+    
     def __init__(self):
         self.current_rule_index = 0
         self.reset_simulation()
@@ -66,7 +66,6 @@ class Ecosystem:
         self.update_palette()
 
     def update_palette(self):
-        """Checks if palette function exists, otherwise uses grayscale."""
         if "generate_monochromatic_palette" in globals():
             self.palette = generate_monochromatic_palette(self.rule["states"])
 
@@ -102,6 +101,11 @@ class Ecosystem:
         
         self.grid = next_grid
 
+def draw_text(screen, text, size, x, y):
+    font = pygame.font.SysFont("arial", size, bold=True)
+    text_surface = font.render(text, True, (255, 255, 255))
+    screen.blit(text_surface, text_surface.get_rect(center=(x, y)))
+
 def main():
     pygame.init()
     screen_res = (GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE)
@@ -116,8 +120,29 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                if event.key == pygame.K_RETURN:
+                    waiting_to_start = False
+                if not waiting_to_start and event.key == pygame.K_SPACE:
+                    sim.cycle_rules()
             
-        if waiting_to_start: #Change to else: when if is added above
+            
+            if event.type == pygame.MOUSEBUTTONDOWN and not waiting_to_start:
+                sim.handle_click(pygame.mouse.get_pos())
+            
+        
+        if waiting_to_start:
+            screen.fill((30, 30, 35))
+            draw_text(screen, "ECOSYSTEM ART SANDBOX", 40, screen_res[0]//2, screen_res[1]//2 - 60)
+            draw_text(screen, "Press [ENTER] to Start", 25, screen_res[0]//2, screen_res[1]//2 + 80)
+            draw_text(screen, "Press [SPACE] to Cycle Rules", 25, screen_res[0]//2, screen_res[1]//2)
+            draw_text(screen, "Press [MOUSE] to Add Cells", 25, screen_res[0]//2, screen_res[1]//2 + 40)
+            draw_text(screen, "Press [ESCAPE] to Quit", 25, screen_res[0]//2, screen_res[1]//2 + 120)
+        
+        else: #Change to else: when if is added above
             sim.update()
             rgb_grid = sim.palette[sim.grid]
             surface = pygame.surfarray.make_surface(rgb_grid)
