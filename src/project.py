@@ -31,6 +31,14 @@ def generate_monochromatic_palette(num_states):
         palette.append([int(r * 255), int(g * 255), int(b * 255)])
     return np.array(palette)
 
+def sprout_cells(grid, cx, cy, radius, num_states):
+    
+    for x in range(-radius, radius + 1):
+        for y in range(-radius, radius + 1):
+            if x*x + y*y <= radius*radius: 
+                grid_x = (cx + x) % GRID_WIDTH
+                grid_y = (cy + y) % GRID_HEIGHT
+                grid[grid_x, grid_y] = random.randint(0, num_states - 1)
 
 def count_neighbors(grid, target_state, neighborhood):
     
