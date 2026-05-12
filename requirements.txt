@@ -1,0 +1,5 @@
+pygame
+numpy as np
+random
+colorsys
+sys
